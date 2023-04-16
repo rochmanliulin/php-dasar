@@ -1,0 +1,1 @@
+[{"nama":"Rochman","alamat":"Sidoarjo"},{"nama":"Arif","alamat":"Sidoarjo"},{"nama":"Hakim","alamat":"Sidoarjo"}]
