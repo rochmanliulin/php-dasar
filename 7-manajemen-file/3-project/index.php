@@ -24,11 +24,8 @@ if (isset($_POST['todo'])) {
         'todo' => $data,
         'status' => 0
     ];
-    // Membuat atau mengupdate file todo.txt dan reformat array menjadi format serialize
-    file_put_contents('todo.txt', serialize($todos));
-
-    // Redirect -> biasanya dilakukan ketika ada aksi atau proses yang dilakukan oleh pengguna yang memerlukan perubahan halaman, seperti saat pengguna berhasil menambahkan data pada form, menghapus data, atau melakukan proses lainnya.
-    header('location:index.php');
+    
+    saveData($todos);
 }
 
 // Jika ada data dengan nama status, jalankan
@@ -36,10 +33,24 @@ if (isset($_GET['status'])) {
     // Bacanya -> array multidimensi todos [key/indeks sesuai checklist user (misal = 0)] dan [status/indeks array multidimensi]
     // Kemudian isi dengan nilai dari $_GET['status'] yang berisi 1
     $todos[$_GET['key']]['status'] = $_GET['status'];
+    
+    saveData($todos);
+}
+
+// Jika ada data dengan nama status, jalankan
+if (isset($_GET['hapus'])) {
+    unset($todos[$_GET['key']]);
+    
+    saveData($todos);
+}
+
+// Function untuk save data
+function saveData($todos) {
+    // Membuat atau mengupdate file todo.txt dan reformat array menjadi format serialize
     // Agar updatean status tersimpan dan data diubah
     file_put_contents('todo.txt', serialize($todos));
-    // Redirect
-    header('location:index.php');
+    // Redirect -> biasanya dilakukan ketika ada aksi atau proses yang dilakukan oleh pengguna yang memerlukan perubahan halaman, seperti saat pengguna berhasil menambahkan data pada form, menghapus data, atau melakukan proses lainnya.
+    header('Location:index.php');
 }
 
 // Untuk cek perubahan pada array
@@ -67,26 +78,24 @@ print_r($todos);
 
     <ul>
         <!-- Looping agar data dinamis -->
+        <!-- 1. Baris 78 -> onclick -> Redirect -> Agar ketika mengklik checkbox, JS mengarahkan ke URL baru dengan query string status dan key -->
+        <!-- 2. Baris 78 -> Mengambil indeks/$key dari array $todos dan memasukan ke query key -->
+        <!-- 3. Baris 35 -> Buat kondisi untuk mengambil data dari URL / query string kemudian ubah status data yang memiliki index key menjadi 1 -->
+        <!-- 4. Baris 79 -> Beri atribut checked ketika status bernilai 1 -->
+        <!-- 5. Baris 84 -> Mencoret teks ketika status bernilai 1 begitu sebaliknya -->
+        <!-- 6. Baris 78 -> Ubah status setiap kali klik ceklist, agar status tidak terus-menerus bernilai 1 -->
         <?php foreach ($todos as $key => $value): ?>
             <li>
-                <!-- 1. Baris 77 -> onclick -> Redirect -> Agar ketika mengklik checkbox, JS mengarahkan ke URL baru dengan query string status dan key -->
-                <!-- 2. Baris 77 -> Mengambil indeks/$key dari array $todos dan memasukan ke query key -->
-                <!-- 3. Baris 35 -> Buat kondisi untuk mengambil data dari URL / query string kemudian ubah status data yang memiliki index key menjadi 1 -->
-                <!-- 4. Baris 79 -> Beri atribut checked ketika status bernilai 1 -->
-                <!-- 5. Baris 84 -> Mencoret teks ketika status bernilai 1 begitu sebaliknya -->
-                <!-- 6. Baris 77 -> Ubah status setiap kali klik ceklist, agar status tidak terus-menerus bernilai 1 -->
                 <input type="checkbox" name="todo" onclick="window.location.href = 'index.php?status=<?php echo ($value['status'] == 1) ? '0' : '1'?>&key=<?php echo $key; ?>'"
                     <?php if ($value['status'] == 1) {
                         // Jika bernilai 1, maka centang
                         echo 'checked';
                     }?>>
-                <label>
-                    <?php
+                <label><?php
                         // Ternary Operator
                         echo ($value['status'] == 1) ? "<del>" . $value['todo'] . "</del>" : $value['todo'];
-                    ?>
-                </label>
-                <a href="#">hapus</a>
+                ?></label>
+                <a href="index.php?hapus=1&key=<?php echo $key; ?>" onclick="return confirm('Apakah kamu yakin ingin menghapus ?');">hapus</a>
             </li>
         <?php endforeach ?>
     </ul>
